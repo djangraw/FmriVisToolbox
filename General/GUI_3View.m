@@ -13,6 +13,7 @@ function varargout = GUI_3View(varargin)
 %
 % Created 10/2014 by DJ.
 % Updated 4/3/15 by DJ - RGB bug fix, comments.
+% Updated 11/25/15 by DJ - RGB closes colorbar figure.
 %
 %      GUI_3VIEW, by itself, creates a new GUI_3VIEW or raises the existing
 %      singleton*.
@@ -187,8 +188,10 @@ if size(handles.brick,4)<3
     % make a colorbar figure
     figure(999); clf; axes('clim',clim,'visible','off'); colormap gray; colorbar;
 else
-    % clear the colorbar figure
-    figure(999); clf;
+    % close the colorbar figure
+    if ishandle(999)
+        close(999);
+    end
 end
 
 % Update handles structure

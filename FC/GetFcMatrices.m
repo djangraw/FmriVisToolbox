@@ -26,6 +26,7 @@ function FC = GetFcMatrices(tc,method,winLength)
 % Updated 11/10/15 by DJ - comments.
 % Updated 11/18/15 by DJ - nWin = nT-winLength+1
 % Updated 11/19/15 by DJ - added DCC option and tapered window option
+% Updated 11/24/15 by DJ - made sure lHam is a multiple of 2
 
 % Handle defaults
 if ~exist('method','var') || isempty(method)
@@ -64,7 +65,8 @@ switch lower(method)
         fprintf('Getting sliding-window FC in %d windows...\n',nWin);
         FC = nan(nParc,nParc,nWin);
         lHam = floor(winLength/3);
-        hamWin = hamming(lHam);        
+        if mod(lHam,2)==1; lHam = lHam+1; end % make a multiple of 2
+        hamWin = hamming(lHam)';        
         weights = [hamWin(1:floor(lHam/2)), ones(1,winLength-lHam), hamWin(floor(lHam/2)+1:end)];
         % plot window shape
         cla;
