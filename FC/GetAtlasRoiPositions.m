@@ -1,6 +1,7 @@
 function roiPos = GetAtlasRoiPositions(atlasfile,subbrick)
 
 % Created 11/24/15 by DJ.
+% Updated 12/23/15 by DJ - ignore nans.
 
 if ischar(atlasfile)
 % load atlas
@@ -13,7 +14,7 @@ end
 
 
 % Get ROIs
-nROIs = numel(unique(atlas(atlas~=0)));
+nROIs = numel(unique(atlas(~isnan(atlas) & atlas~=0)));
 
 roiPos = nan(nROIs,3);
 for i=1:nROIs

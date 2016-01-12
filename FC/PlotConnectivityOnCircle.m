@@ -1,4 +1,4 @@
-function PlotConnectivityOnCircle(atlas,nClusters,FC,threshold)
+function PlotConnectivityOnCircle(atlas,nClusters,FC,threshold,cluster_names,groupClusters)
 
 % Plot the ROIs, colored according to their cluster, around the unit
 % circle. Then plot arcs connecting functionally connected ROIs.
@@ -16,11 +16,13 @@ function PlotConnectivityOnCircle(atlas,nClusters,FC,threshold)
 % clustering]. OR... 
 % -idx is an n-element vector of the cluster to which each roi belongs.
 % [default = 1:n]
+% -FC is an nxn matrix of the connectivity between each pair of ROIs.
+% -threshold is the cutoff below which FCs will not be plotted.
+% -cluster_names is a p-element cell array of strings, where p=nClusters or
+%   max(idx), indicating the name of each cluster for the legend.
 % -groupClusters is a binary value indicating whether ROIs in the same
 % cluster should be plotted together around the circle instead of according
 % to their x,y position. [default = true]
-% -marker is a string indicating the marker you'd like to use to plot the
-% positions (see 'help plot' for options). [default = '-']
 %
 % OUTPUTS:
 % -roiPos_circle is an nx2 matrix where each row is the (x,y) position of
@@ -30,6 +32,8 @@ function PlotConnectivityOnCircle(atlas,nClusters,FC,threshold)
 %
 % Created 11/24/15 by DJ.
 % Updated 11/30/15 by DJ - allow idx input, default nClusters.
+% Updated 12/3/15 by DJ - fixed idx input option, added cluster_names and
+%   groupClusters inputs.
 
 % Set defaults
 if ~exist('threshold','var') || isempty(threshold)
@@ -43,19 +47,20 @@ elseif numel(nClusters)==1
     idx = ClusterRoisSpatially(atlas,nClusters);
 else
     idx = nClusters;
+    nClusters = max(idx);    
 end
-% name clusters
-cluster_names = cell(nClusters*2,1);
-sides= 'RL';
-for i=1:2
-    for j=1:nClusters
-        cluster_names{(i-1)*nClusters+j} = sprintf('%s cluster %d',sides(i),j);
+if ~exist('cluster_names','var') || isempty(cluster_names)
+    % Name clusters
+    cluster_names = cell(1,nClusters);
+    for i=1:nClusters
+        cluster_names{i} = sprintf('cluster %d',i);
     end
 end
-% cluster_names = {'R Brainstem','R Subcortical','R Cerebellum','R Limbic','R Occipital','R Temporal','R Parietal','R Insula','R Motor','R Prefrontal',...
-%     'L Brainstem','L Subcortical','L Cerebellum','L Limbic','L Occipital','L Temporal','L Parietal','L Insula','L Motor','L Prefrontal'};
+if ~exist('groupClusters','var') || isempty(groupClusters)
+    groupClusters = true;
+end
 % Plot positions
-roiPos_circle = PlotRoisOnCircle(atlas,idx,true,cluster_names);
+roiPos_circle = PlotRoisOnCircle(atlas,idx,groupClusters,cluster_names,'-*');
 
 % Put FC on scale where max(abs(FC))-->3 and abs(threshold)-->0
 FCnorm = zeros(size(FC));

@@ -25,6 +25,7 @@ function [U,S,V,PCtc] = PlotFcPca(FC,nPcsToPlot,demeanFC)
 %
 % Created 11/6/15 by DJ.
 % Updated 11/10/15 by DJ - reassemble full PC matrices, added help header.
+% Updated 12/21/15 by DJ - added no-plot option.
 
 % De-Mean FC matrices
 if demeanFC
@@ -52,40 +53,42 @@ fprintf('Running SVD...\n')
 [U,S,V] = svd(FCvec);
 Snorm = diag(S)/sum(diag(S));
 
-% plot singular values
-fprintf('Plotting singular values...\n')
-figure(111); clf;
-plot(Snorm);
-xlabel('principal component index')
-ylabel('singular value')
-
 %% get timecourses
 fprintf('Getting timecourses...\n')
 PCtc = V'*FCvec'; % multiply each weight vec by each FC vec
 
 %% plot results
-fprintf('Plotting PCs & timecourses...\n')
-figure(112); clf;
-Vmat = zeros(size(FC,1));
-for i=1:nPcsToPlot    
-    % form vector back to symmetric matrix
-    Vmat(uppertri==1) = V(:,i);
-    Vmat(uppertri'==1) = V(:,i);   
-    % image matrix
-    subplot(nPcsToPlot,2,2*i-1);
-    imagesc(Vmat);
-    % annotate plot
-    ylabel(sprintf('PC #%d: SV=%.3g',i,Snorm(i)));
-    axis square
-    colorbar;    
-    
-    % plot timecourse
-    subplot(nPcsToPlot,2,2*i); hold on
-    plot(PCtc(i,:));
-    % annotate plot
-    xlabel('time of window start (samples)')
-    ylabel('PC activation')
-    grid on
-    % plot horizontal line at zero
-    plot([0 0],get(gca,'ylim'),'k-');
+if nPcsToPlot>0
+    % plot singular values
+    fprintf('Plotting singular values...\n')
+    figure(111); clf;
+    plot(Snorm);
+    xlabel('principal component index')
+    ylabel('singular value')
+    % plot PCs
+    fprintf('Plotting PCs & timecourses...\n')
+    figure(112); clf;
+    Vmat = zeros(size(FC,1));
+    for i=1:nPcsToPlot    
+        % form vector back to symmetric matrix
+        Vmat(uppertri==1) = V(:,i);
+        Vmat(uppertri'==1) = V(:,i);   
+        % image matrix
+        subplot(nPcsToPlot,2,2*i-1);
+        imagesc(Vmat);
+        % annotate plot
+        ylabel(sprintf('PC #%d: SV=%.3g',i,Snorm(i)));
+        axis square
+        colorbar;    
+
+        % plot timecourse
+        subplot(nPcsToPlot,2,2*i); hold on
+        plot(PCtc(i,:));
+        % annotate plot
+        xlabel('time of window start (samples)')
+        ylabel('PC activation')
+        grid on
+        % plot horizontal line at zero
+        plot([0 0],get(gca,'ylim'),'k-');
+    end
 end

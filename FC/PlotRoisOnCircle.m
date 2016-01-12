@@ -23,6 +23,7 @@ function [roiPos_circle,h] = PlotRoisOnCircle(atlas,idx,groupClusters,clusterNam
 % where m=max(idx).
 %
 % Created 11/24/15 by DJ.
+% Updated 12/3/15 by DJ - fixed marker default bug
 
 % Handle defaults
 if ~exist('idx','var') || isempty(idx)
@@ -34,7 +35,7 @@ end
 if ~exist('clusterNames','var') || isempty(clusterNames)
     clusterNames = [];
 end
-if ~exist('plotOption','var') || isempty(marker)
+if ~exist('marker','var') || isempty(marker)
     marker = '-';
 end
 % Get ROI postions
@@ -49,7 +50,8 @@ if groupClusters
     nClusters = max(idx);
     nROIsR = sum(idx <= nClusters/2);
     nROIsL = sum(idx > nClusters/2);
-    thetaEven = [linspace(-pi/2,pi/2,nROIsR), linspace(3*pi/2,pi/2,nROIsL)];
+    thetaEven = [linspace(-pi/2 * nROIsR/(nROIsR+1),pi/2 * nROIsR/(nROIsR+1),nROIsR), ...
+        linspace(pi + pi/2 * nROIsL/(nROIsL+1),pi - pi/2 * nROIsL/(nROIsL+1),nROIsL)];
     theta = zeros(nROIs,1);
     for i=1:nClusters
         theta(idx==i) = thetaEven((1:sum(idx==i))+sum(idx<i));

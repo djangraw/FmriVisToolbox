@@ -14,6 +14,7 @@ function varargout = GUI_3View(varargin)
 % Created 10/2014 by DJ.
 % Updated 4/3/15 by DJ - RGB bug fix, comments.
 % Updated 11/25/15 by DJ - RGB closes colorbar figure.
+% Updated 12/21/15 by DJ - fixed bug when moving mouse offscreen
 %
 %      GUI_3VIEW, by itself, creates a new GUI_3VIEW or raises the existing
 %      singleton*.
@@ -248,6 +249,10 @@ slice(handles.axes_sli,permute(mean(handles.brick,4),[2 1 3]),handles.iSlice(1),
 xlabel(handles.axes_sli,'x');
 ylabel(handles.axes_sli,'y');
 zlabel(handles.axes_sli,'z');
+% correct slice
+sizebrick = size(handles.brick);
+handles.iSlice = min(sizebrick(1:3),handles.iSlice);
+handles.iSlice = max([1 1 1],handles.iSlice);
 
 % Redraw slices
 for iDim = 1:3
