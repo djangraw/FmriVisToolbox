@@ -2,11 +2,27 @@ function [FC_ordered,order,idx_ordered] = PlotFcMatrix(FC,clim,atlas,nClusters)
 
 % [FC_ordered,order,idx_ordered] = PlotFcMatrix(FC,clim,atlas,nClusters)
 %
-% INPUTS:
+% INPUTS: 
+% -FC is an nxn matrix indicating the functional connectivity
+% between n ROIs.
+% -clim is a 2-element vector indicating the [min, max] values that should
+% be used for coloring the plot.
+% -atlas is an mxpxq matrix containing values of 0:n. This indicates a 3d
+% spatial volume that shows where the n ROIs are located in the brain.
+% -nClusters is a scalar indicating how many ROI groups should be found in
+% each hemisphere. ROIs will be clustered spatially with
+% ClustersRoiSpatially.m. 0 --> no clustering ([default]). n-element vector
+% --> nClusters(i) indicates the cluster that ROI i belongs to.
 % 
-% OUTPUTS:
+% OUTPUTS: 
+% -FC_ordered is an nxn matrix with the ROIs reordered as shown in the
+% plot.
+% -order is the reordering index (i.e., FC_ordered = FC(order,order)).
+% -idx_ordered is the cluster that each ROI belongs to in FC_ordered.
 %
 % Created 12/23/15 by DJ.
+% Updated 3/24/16 by DJ - display clusters in colors matching their squares
+% Updated 6/9/16 by DJ - comments
 
 if ~exist('nClusters','var') || isempty(nClusters) || isequal(nClusters,0)
     showClusters = false;
@@ -63,18 +79,21 @@ colorbar;
 % ROI plot function
 function ShowCluster(hObject,eventdata,iCluster)     
     
-    % Create atlas for vis
+%     % Create atlas for vis
     atlasIdx = MapValuesOntoAtlas(atlas,idx);
-    atlasR = atlasIdx/(nanmax(idx)*2);
-    % Create green overlay  
-    atlasG = atlasR;
-    atlasG(atlasIdx==iCluster) = 1;
-    % Create blue overlay
-    atlasB = atlasR;    
+%     atlasR = atlasIdx/(nanmax(idx)*2);
+%     % Create green overlay  
+%     atlasG = atlasR;
+%     atlasG(atlasIdx==iCluster) = 1;
+%     % Create blue overlay
+%     atlasB = atlasR;    
+    % Get RGB atlas
+    atlasRGB = MapColorsOntoAtlas(atlasIdx,colors);
     % Get position
     roiPos = GetAtlasRoiPositions(atlasIdx);
     % Plot result
-    GUI_3View(cat(4,atlasR,atlasG,atlasB),round(roiPos(iCluster,:)));
+%     GUI_3View(cat(4,atlasR,atlasG,atlasB),round(roiPos(iCluster,:)));
+    GUI_3View(atlasRGB,round(roiPos(iCluster,:)));
 end
 
 % ROI plot function
