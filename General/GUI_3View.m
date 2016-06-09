@@ -15,6 +15,8 @@ function varargout = GUI_3View(varargin)
 % Updated 4/3/15 by DJ - RGB bug fix, comments.
 % Updated 11/25/15 by DJ - RGB closes colorbar figure.
 % Updated 12/21/15 by DJ - fixed bug when moving mouse offscreen
+% Updated 6/9/16 by DJ - commented out axes(hObject) line for compatibility
+%   with MATLAB R2016a.
 %
 %      GUI_3VIEW, by itself, creates a new GUI_3VIEW or raises the existing
 %      singleton*.
@@ -77,22 +79,22 @@ handles.activedim = 1;
 % handles.slicesize = 1;
 
 handles.axes_sli = subplot(2,2,1);
-title('Slices');
-xlabel('x');
-ylabel('y');
-zlabel('z');
+title(handles.axes_sli,'Slices');
+xlabel(handles.axes_sli,'x');
+ylabel(handles.axes_sli,'y');
+zlabel(handles.axes_sli,'z');
 handles.axes_sag = subplot(2,2,3);
-title('Sagittal');
-ylabel('z');
-xlabel('y');
+title(handles.axes_sag,'Sagittal');
+ylabel(handles.axes_sag,'z');
+xlabel(handles.axes_sag,'y');
 handles.axes_cor = subplot(2,2,4);
-title('Coronal');
-ylabel('z');
-xlabel('x');
+title(handles.axes_cor,'Coronal');
+ylabel(handles.axes_cor,'z');
+xlabel(handles.axes_cor,'x');
 handles.axes_axi = subplot(2,2,2);
-title('Axial');
-ylabel('y');
-xlabel('x');
+title(handles.axes_axi,'Axial');
+ylabel(handles.axes_axi,'y');
+xlabel(handles.axes_axi,'x');
 handles.axislist = [handles.axes_sag, handles.axes_cor, handles.axes_axi];
 handles.togglelist = [handles.toggle_R, handles.toggle_G, handles.toggle_B];
 
@@ -157,7 +159,7 @@ if (ndims(V)==4 && size(V,4)==3); % grayscale or RGB
     handles.brick_loaded = V;
     set(handles.togglelist,'Visible','on','Value',1);
 else
-    handles.brick_loaded = mean(V,4);
+    handles.brick_loaded = nanmean(V,4);
     set(handles.togglelist,'Visible','off');
 end
 % make sure slice is in volume
@@ -245,7 +247,7 @@ set(gcf,'WindowButtonUpFcn',@StopMovingCrosshair);
 % --- Redraw All Slices of the image. --- %
 function RedrawAllSlices(handles,hObject)
 % draw 3d slices
-slice(handles.axes_sli,permute(mean(handles.brick,4),[2 1 3]),handles.iSlice(1),handles.iSlice(2),handles.iSlice(3));
+slice(handles.axes_sli,permute(nanmean(handles.brick,4),[2 1 3]),handles.iSlice(1),handles.iSlice(2),handles.iSlice(3));
 xlabel(handles.axes_sli,'x');
 ylabel(handles.axes_sli,'y');
 zlabel(handles.axes_sli,'z');
@@ -269,9 +271,9 @@ else
     set(handles.text_intensity,'string',sprintf('intensity = %.2f',handles.brick(handles.iSlice(1),handles.iSlice(2),handles.iSlice(3))));
 end
 
-try
-    axes(hObject); % go back to object you were on before this ran
-end
+% try
+%     axes(hObject); % go back to object you were on before this ran
+% end
 
 % --- Move the crosshairs in a given axis. --- %
 function MoveCrosshair(objHandle,eventData)

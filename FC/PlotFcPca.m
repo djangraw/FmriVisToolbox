@@ -25,12 +25,14 @@ function [U,S,V,PCtc] = PlotFcPca(FC,nPcsToPlot,demeanFC)
 %
 % Created 11/6/15 by DJ.
 % Updated 11/10/15 by DJ - reassemble full PC matrices, added help header.
-% Updated 12/21/15 by DJ - added no-plot option.
+% Updated 12/21/15 by DJ - added no-plot option.  
+% Updated 2/12/16 by DJ - accommodate nans
+% Updated 6/2/16 by DJ - switch to 'econ' version of SVD
 
 % De-Mean FC matrices
 if demeanFC
     fprintf('De-meaning FC...\n')
-    meanFC = mean(FC,3);
+    meanFC = nanmean(FC,3);
     FC = FC - repmat(meanFC,1,1,size(FC,3));
 end
 
@@ -50,7 +52,8 @@ end
 
 % Run SVD to find PC's (slowest step)
 fprintf('Running SVD...\n')
-[U,S,V] = svd(FCvec);
+isOkRow = ~any(isnan(FCvec'));
+[U,S,V] = svd(FCvec(isOkRow,:),'econ');
 Snorm = diag(S)/sum(diag(S));
 
 %% get timecourses

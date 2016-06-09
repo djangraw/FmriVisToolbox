@@ -27,6 +27,8 @@ function FC = GetFcMatrices(tc,method,winLength)
 % Updated 11/18/15 by DJ - nWin = nT-winLength+1
 % Updated 11/19/15 by DJ - added DCC option and tapered window option
 % Updated 11/24/15 by DJ - made sure lHam is a multiple of 2
+% Updated 2/12/16 by DJ - ignore nans in calls to corr
+% Updated 2/19/16 by DJ - suppress status updates
 
 % Handle defaults
 if ~exist('method','var') || isempty(method)
@@ -53,9 +55,9 @@ switch lower(method)
         fprintf('Getting sliding-window FC in %d windows...\n',nWin);
         FC = nan(nParc,nParc,nWin);
         for i=1:nWin
-            fprintf('window %d/%d...\n',i,nWin)
+%             fprintf('window %d/%d...\n',i,nWin)
             iInWin = (1:winLength) + i - 1; % indices in window
-            FC(:,:,i) = corr(tc(:,iInWin)'); % find corellation between all ROIs at once
+            FC(:,:,i) = corr(tc(:,iInWin)','rows','complete'); % find corellation between all ROIs at once
         end
     case 'tw' % tapered window method
         % get # of windows
@@ -77,10 +79,8 @@ switch lower(method)
         for i=1:nWin
             fprintf('window %d/%d...\n',i,nWin)
             iInWin = (1:winLength) + i - 1; % indices in window
-            FC(:,:,i) = corr((weightsRep.*tc(:,iInWin))'); % find corellation between all ROIs at once
+            FC(:,:,i) = corr((weightsRep.*tc(:,iInWin))','rows','complete'); % find corellation between all ROIs at once
         end
-        
-        
         
 end
 fprintf('Done!\n')
