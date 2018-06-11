@@ -1,20 +1,27 @@
-function FC = UnvectorizeFc(FCvec,diagValue)
+function FC = UnvectorizeFc(FCvec,diagValue,fillLowerTri)
 
-% FC = UnvectorizeFc(FCvec,diagValue)
+% FC = UnvectorizeFc(FCvec,diagValue,fillLowerTri)
 %
 % INPUTS:
 % -FCvec is a matrix of size N*(N-1)/2 x T. Each row is a unique ROI pair.
 % -diagValue is a scalar that will be placed on the diagonal of every
 % output page [default = 1].
+% -fillLowerTri is a binary value indicating whether you'd like the lower
+% triangular part of the matrix to be filled with FC values (true) or zeros 
+% (false). [default: true]
 % 
 % OUTPUTS:
 % -FC is an NxNxT matrix, where N is the # ROIs and T is the # time points.
 %
 % Created 6/1/16 by DJ.
 % Updated 6/19/16 by DJ - added diagValue input.
+% Updated 12/19/16 by DJ - added fillLowerTri input.
 
 if ~exist('diagValue','var') || isempty(diagValue)
     diagValue = 1;
+end
+if ~exist('fillLowerTri','var') || isempty(fillLowerTri)
+    fillLowerTri = true;
 end
 
 fprintf('Assembling FC matrix...\n')
@@ -33,9 +40,14 @@ diagMat = repmat(diagMat,1,1,nT);
 % (assume the elements above the diagonal contain all the information)
 FC = nan(nROIs,nROIs,nT);
 for i=1:nT
-    thisFC = ones(nROIs,nROIs);
-    thisFC(uppertri==1) = FCvec(:,i); % save out for easy indexing
-    thisFC = thisFC.*thisFC'; % assume a symmetric matrix
+    if fillLowerTri
+        thisFC = ones(nROIs,nROIs);
+        thisFC(uppertri==1) = FCvec(:,i); % save out for easy indexing
+        thisFC = thisFC.*thisFC'; % assume a symmetric matrix
+    else
+        thisFC = zeros(nROIs,nROIs);
+        thisFC(uppertri==1) = FCvec(:,i); % save out for easy indexing
+    end
     FC(:,:,i) = thisFC; 
 end
 
